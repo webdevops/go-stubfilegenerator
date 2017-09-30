@@ -11,6 +11,7 @@
 // res/templates/stub.htm
 // res/templates/stub.html
 // res/templates/stub.js
+// res/templates/stub.json
 // res/templates/stub.rtf
 // res/templates/stub.svg
 // res/templates/stub.txt
@@ -302,6 +303,26 @@ func resTemplatesStubJs() (*asset, error) {
 	return a, nil
 }
 
+var _resTemplatesStubJson = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xaa\xe6\x52\x50\x50\x50\x50\x0a\x70\x0c\xf1\x50\xb2\x52\x50\x52\x05\x31\x54\x95\xb8\x6a\xb9\x00\x01\x00\x00\xff\xff\x3e\x7b\x05\x03\x19\x00\x00\x00")
+
+func resTemplatesStubJsonBytes() ([]byte, error) {
+	return bindataRead(
+		_resTemplatesStubJson,
+		"res/templates/stub.json",
+	)
+}
+
+func resTemplatesStubJson() (*asset, error) {
+	bytes, err := resTemplatesStubJsonBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "res/templates/stub.json", size: 25, mode: os.FileMode(420), modTime: time.Unix(1506790805, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
+}
+
 var _resTemplatesStubRtf = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xaa\x8e\x29\x2a\x49\xe3\xaa\x8e\x49\xcb\xcf\x2b\x29\x49\xca\x51\xa8\x8e\x49\x33\x50\x08\xc9\xcc\x4d\x2d\x56\xf0\x4b\x2d\x57\x08\xca\xcf\x4d\xcc\xb3\xae\xad\xe5\x8a\x49\x33\x88\x49\x2b\x36\x33\x50\x50\x0d\x70\x0c\xf1\x50\xe5\xaa\xe5\x02\x04\x00\x00\xff\xff\xe2\xcc\xa5\x8f\x3a\x00\x00\x00")
 
 func resTemplatesStubRtfBytes() ([]byte, error) {
@@ -445,6 +466,7 @@ var _bindata = map[string]func() (*asset, error){
 	"res/templates/stub.htm": resTemplatesStubHtm,
 	"res/templates/stub.html": resTemplatesStubHtml,
 	"res/templates/stub.js": resTemplatesStubJs,
+	"res/templates/stub.json": resTemplatesStubJson,
 	"res/templates/stub.rtf": resTemplatesStubRtf,
 	"res/templates/stub.svg": resTemplatesStubSvg,
 	"res/templates/stub.txt": resTemplatesStubTxt,
@@ -506,6 +528,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 			"stub.htm": &bintree{resTemplatesStubHtm, map[string]*bintree{}},
 			"stub.html": &bintree{resTemplatesStubHtml, map[string]*bintree{}},
 			"stub.js": &bintree{resTemplatesStubJs, map[string]*bintree{}},
+			"stub.json": &bintree{resTemplatesStubJson, map[string]*bintree{}},
 			"stub.rtf": &bintree{resTemplatesStubRtf, map[string]*bintree{}},
 			"stub.svg": &bintree{resTemplatesStubSvg, map[string]*bintree{}},
 			"stub.txt": &bintree{resTemplatesStubTxt, map[string]*bintree{}},
