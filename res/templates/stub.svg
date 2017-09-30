@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <text x="20" y="40">%PATH%</text>
+    <text x="20" y="80">SVG IMAGE</text>
+</svg>

@@ -1,0 +1,3 @@
+generate:
+	go get -u github.com/jteeuwen/go-bindata/...
+	go-bindata -pkg stubfilegenerator res/*
