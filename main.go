@@ -17,7 +17,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 )
 
-type stubGenerator struct {
+type StubGenerator struct {
 	TemplateVariables map[string]string
 	Image struct {
 		BackgroundColor color.RGBA
@@ -33,8 +33,8 @@ type stubGenerator struct {
 	Overwrite bool
 }
 
-func StubGenerator() stubGenerator {
-	stubGen := stubGenerator{}
+func NewStubGenerator() StubGenerator {
+	stubGen := StubGenerator{}
 	stubGen.TemplateVariables = map[string]string{}
 	stubGen.Image.BackgroundColor = color.RGBA{255, 255, 170, 255}
 	stubGen.Image.FontColor = color.RGBA{0, 0, 0, 255}
@@ -51,13 +51,19 @@ func StubGenerator() stubGenerator {
 	return stubGen
 }
 
-func (config stubGenerator) init(path string) {
+// Clone stub genetator
+func (config *StubGenerator) Clone() (StubGenerator) {
+	clone := *config
+	return clone
+}
+
+func (config StubGenerator) init(path string) {
 	if _, ok := config.TemplateVariables["PATH"]; !ok {
 		config.TemplateVariables["PATH"] = path
 	}
 }
 
-func (config stubGenerator) GenerateStub(path string) {
+func (config StubGenerator) GenerateStub(path string) {
 
 	if config.Overwrite == false {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
@@ -81,7 +87,7 @@ func (config stubGenerator) GenerateStub(path string) {
 	config.generateStubFallback(path)
 }
 
-func (config stubGenerator) generateStubAuto(path string) bool {
+func (config StubGenerator) generateStubAuto(path string) bool {
 	assetFile := fmt.Sprintf("res/auto/stub%s", filepath.Ext(path))
 
 	data, err := Asset(assetFile)
@@ -95,7 +101,7 @@ func (config stubGenerator) generateStubAuto(path string) bool {
 	return false
 }
 
-func (config stubGenerator) generateStubImage(path string) bool {
+func (config StubGenerator) generateStubImage(path string) bool {
 	config.init(path)
 	
 	fileExt := filepath.Ext(path)
@@ -129,7 +135,7 @@ func (config stubGenerator) generateStubImage(path string) bool {
 	return false
 }
 
-func (config stubGenerator) createImage() *image.RGBA {
+func (config StubGenerator) createImage() *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, config.Image.Width, config.Image.Height))
 	draw.Draw(img, img.Bounds(), &image.Uniform{config.Image.BackgroundColor}, image.ZP, draw.Src)
 
@@ -147,7 +153,7 @@ func (config stubGenerator) createImage() *image.RGBA {
 	return img
 }
 
-func (config stubGenerator) generateStubText(path string) bool {
+func (config StubGenerator) generateStubText(path string) bool {
 	config.init(path)
 	assetFile := fmt.Sprintf("res/templates/stub%s", filepath.Ext(path))
 
@@ -169,7 +175,7 @@ func (config stubGenerator) generateStubText(path string) bool {
 	return false
 }
 
-func (config stubGenerator) generateStubFallback(path string) bool {
+func (config StubGenerator) generateStubFallback(path string) bool {
 	createFile(path, func(f *os.File) {
 		for key, value := range config.TemplateVariables {
 			f.WriteString(fmt.Sprintf("%s: %s", key, value))
@@ -201,7 +207,7 @@ func check(e error) {
 	}
 }
 
-func (config stubGenerator) imageWriteTextLine(img *image.RGBA, x, y int, label string) {
+func (config StubGenerator) imageWriteTextLine(img *image.RGBA, x, y int, label string) {
 	point := fixed.Point26_6{fixed.Int26_6(x * 64), fixed.Int26_6(y * 64)}
 
 	d := &font.Drawer{
