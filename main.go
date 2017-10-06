@@ -78,7 +78,7 @@ func (config StubGenerator) init(path string) {
 }
 
 // generate one stub file, path will specify type and destination
-func (config StubGenerator) GenerateStub(path string) {
+func (config StubGenerator) Generate(path string) {
 
 	if config.Overwrite == false {
 		if _, err := os.Stat(path); !os.IsNotExist(err) {
