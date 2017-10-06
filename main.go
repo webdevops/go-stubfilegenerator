@@ -18,21 +18,34 @@ import (
 )
 
 type StubGenerator struct {
+	// Variable map for search&replace inside Text fields or files
 	TemplateVariables map[string]string
 	Image struct {
+		// Background color of generated image
 		BackgroundColor color.RGBA
+		// Font color (for inserted text)
 		FontColor color.RGBA
+		// Font (for inserted text)
 		Font *basicfont.Face
+		// Font line height
 		FontLineHeight int
+		// Number of colors for palette (GIF)
 		NumColors int
+		// Quality (JPG)
 		Quality int
+		// Width of image
 		Width int
+		// Height of image
 		Height int
+		// Lines of text which will be written inside the image
 		Text []string
 	}
+	// Overwrite existing files
 	Overwrite bool
 }
 
+// Constructor
+// Will init sane defaults
 func NewStubGenerator() StubGenerator {
 	stubGen := StubGenerator{}
 	stubGen.TemplateVariables = map[string]string{}
@@ -57,12 +70,14 @@ func (config *StubGenerator) Clone() (StubGenerator) {
 	return clone
 }
 
+// Init generate stub run
 func (config StubGenerator) init(path string) {
 	if _, ok := config.TemplateVariables["PATH"]; !ok {
 		config.TemplateVariables["PATH"] = path
 	}
 }
 
+// generate one stub file, path will specify type and destination
 func (config StubGenerator) GenerateStub(path string) {
 
 	if config.Overwrite == false {
@@ -87,6 +102,7 @@ func (config StubGenerator) GenerateStub(path string) {
 	config.generateStubFallback(path)
 }
 
+// Generate stub by using automatic stubs (simple deployments)
 func (config StubGenerator) generateStubAuto(path string) bool {
 	assetFile := fmt.Sprintf("res/auto/stub%s", filepath.Ext(path))
 
@@ -101,6 +117,7 @@ func (config StubGenerator) generateStubAuto(path string) bool {
 	return false
 }
 
+// Generate image stub
 func (config StubGenerator) generateStubImage(path string) bool {
 	config.init(path)
 	
@@ -135,6 +152,7 @@ func (config StubGenerator) generateStubImage(path string) bool {
 	return false
 }
 
+// Create go image resource
 func (config StubGenerator) createImage() *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, config.Image.Width, config.Image.Height))
 	draw.Draw(img, img.Bounds(), &image.Uniform{config.Image.BackgroundColor}, image.ZP, draw.Src)
@@ -153,6 +171,8 @@ func (config StubGenerator) createImage() *image.RGBA {
 	return img
 }
 
+// Create text stub like txt, cvs and other text based files
+// TemplateVariables will be used to replace the content
 func (config StubGenerator) generateStubText(path string) bool {
 	config.init(path)
 	assetFile := fmt.Sprintf("res/templates/stub%s", filepath.Ext(path))
@@ -175,6 +195,7 @@ func (config StubGenerator) generateStubText(path string) bool {
 	return false
 }
 
+// Create fallback stub, file will only contain TemplateVariables
 func (config StubGenerator) generateStubFallback(path string) bool {
 	createFile(path, func(f *os.File) {
 		for key, value := range config.TemplateVariables {
@@ -185,6 +206,7 @@ func (config StubGenerator) generateStubFallback(path string) bool {
 	return true
 }
 
+// Create path and file with content using a callback function
 func createFile(path string, callback func(f *os.File)) *os.File {
 	directory := filepath.Dir(path)
 	os.MkdirAll(directory, os.ModePerm)
@@ -201,12 +223,14 @@ func createFile(path string, callback func(f *os.File)) *os.File {
 	return f
 }
 
+// check for error
 func check(e error) {
 	if e != nil {
 		panic(e)
 	}
 }
 
+// Write text line into image resource
 func (config StubGenerator) imageWriteTextLine(img *image.RGBA, x, y int, label string) {
 	point := fixed.Point26_6{fixed.Int26_6(x * 64), fixed.Int26_6(y * 64)}
 
