@@ -24,16 +24,16 @@ import (
 )
 
 func main() {
-	stubgen := stubfilegenerator.StubGenerator()
-	stubgen.GenerateStub("example/foo.txt")
-	stubgen.GenerateStub("example/foo.csv")
-	stubgen.GenerateStub("example/foo.xml")
-	stubgen.GenerateStub("example/foo.gif")
-	stubgen.GenerateStub("example/foo.png")
-	stubgen.GenerateStub("example/foo.jpg")
+	stubgen := stubfilegenerator.NewStubGenerator()
+	stubgen.Generate("example/foo.txt")
+	stubgen.Generate("example/foo.csv")
+	stubgen.Generate("example/foo.xml")
+	stubgen.Generate("example/foo.gif")
+	stubgen.Generate("example/foo.png")
+	stubgen.Generate("example/foo.jpg")
 
 	stubgen.Image.Width = 1000
 	stubgen.Image.Height = 1000
-	stubgen.GenerateStub("example/big.jpg")
+	stubgen.Generate("example/big.jpg")
 }
 ```
