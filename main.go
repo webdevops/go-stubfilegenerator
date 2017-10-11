@@ -15,6 +15,7 @@ import (
 	"golang.org/x/image/font/inconsolata"
 	"golang.org/x/image/math/fixed"
 	"golang.org/x/image/font/basicfont"
+	"errors"
 )
 
 type StubGenerator struct {
@@ -42,6 +43,8 @@ type StubGenerator struct {
 	}
 	// Overwrite existing files
 	Overwrite bool
+
+	rootPath string
 }
 
 // Constructor
@@ -61,6 +64,7 @@ func NewStubGenerator() StubGenerator {
 		"Path: %PATH%",
 	}
 	stubGen.Overwrite = false
+	stubGen.rootPath = ""
 	return stubGen
 }
 
@@ -71,39 +75,73 @@ func (config *StubGenerator) Clone() (StubGenerator) {
 }
 
 // Init generate stub run
-func (config StubGenerator) init(path string) {
+func (config *StubGenerator) init(path string) (string, error) {
+	var err error
 	if _, ok := config.TemplateVariables["PATH"]; !ok {
 		config.TemplateVariables["PATH"] = path
 	}
-}
 
-// generate one stub file, path will specify type and destination
-func (config StubGenerator) Generate(path string) {
+	if config.rootPath == "" {
+		return "", errors.New(fmt.Sprintf("Root path is empty, please use SetRootPath before generating files", path))
+	}
+
+	// get absolute path with root prefix
+	path, err = filepath.Abs(filepath.Join(config.rootPath, path))
+
+	// check if root path is still included
+	if err != nil  || !strings.HasPrefix(path, config.rootPath) {
+		return "", errors.New(fmt.Sprintf("Invalid path \"%s\": outside of root path (used .. inside path?)", path))
+	}
 
 	if config.Overwrite == false {
-		if _, err := os.Stat(path); !os.IsNotExist(err) {
+		if _, err = os.Stat(path); !os.IsNotExist(err) {
 			// file eixsts
-			return
+			return "", errors.New(fmt.Sprintf("File \"%s\" already exists", path))
 		}
 	}
 
+	return path, nil
+}
+
+// Set root path of file generation
+// This root path also makes sure that no files are generated outside
+// of this directory
+func (config *StubGenerator) SetRootPath(path string) error {
+	rootPath, err := filepath.Abs(path)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unable to get root path: %v", err))
+	}
+
+	config.rootPath = rootPath
+	return nil
+}
+
+// generate one stub file, path will specify type and destination
+func (config *StubGenerator) Generate(path string) error {
+	path, err := config.init(path)
+	if err != nil {
+		return err
+	}
+
 	if config.generateStubAuto(path) {
-		return
+		return nil
 	}
 
 	if config.generateStubImage(path) {
-		return
+		return nil
 	}
 
 	if config.generateStubText(path) {
-		return
+		return nil
 	}
 
 	config.generateStubFallback(path)
+
+	return nil
 }
 
 // Generate stub by using automatic stubs (simple deployments)
-func (config StubGenerator) generateStubAuto(path string) bool {
+func (config *StubGenerator) generateStubAuto(path string) bool {
 	assetFile := fmt.Sprintf("res/auto/stub%s", filepath.Ext(path))
 
 	data, err := Asset(assetFile)
@@ -118,9 +156,7 @@ func (config StubGenerator) generateStubAuto(path string) bool {
 }
 
 // Generate image stub
-func (config StubGenerator) generateStubImage(path string) bool {
-	config.init(path)
-	
+func (config *StubGenerator) generateStubImage(path string) bool {
 	fileExt := filepath.Ext(path)
 	switch fileExt {
 	case ".gif":
@@ -153,7 +189,7 @@ func (config StubGenerator) generateStubImage(path string) bool {
 }
 
 // Create go image resource
-func (config StubGenerator) createImage() *image.RGBA {
+func (config *StubGenerator) createImage() *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, config.Image.Width, config.Image.Height))
 	draw.Draw(img, img.Bounds(), &image.Uniform{config.Image.BackgroundColor}, image.ZP, draw.Src)
 
@@ -173,7 +209,7 @@ func (config StubGenerator) createImage() *image.RGBA {
 
 // Create text stub like txt, cvs and other text based files
 // TemplateVariables will be used to replace the content
-func (config StubGenerator) generateStubText(path string) bool {
+func (config *StubGenerator) generateStubText(path string) bool {
 	config.init(path)
 	assetFile := fmt.Sprintf("res/templates/stub%s", filepath.Ext(path))
 
@@ -196,7 +232,7 @@ func (config StubGenerator) generateStubText(path string) bool {
 }
 
 // Create fallback stub, file will only contain TemplateVariables
-func (config StubGenerator) generateStubFallback(path string) bool {
+func (config *StubGenerator) generateStubFallback(path string) bool {
 	createFile(path, func(f *os.File) {
 		for key, value := range config.TemplateVariables {
 			f.WriteString(fmt.Sprintf("%s: %s", key, value))
@@ -231,7 +267,7 @@ func check(e error) {
 }
 
 // Write text line into image resource
-func (config StubGenerator) imageWriteTextLine(img *image.RGBA, x, y int, label string) {
+func (config *StubGenerator) imageWriteTextLine(img *image.RGBA, x, y int, label string) {
 	point := fixed.Point26_6{fixed.Int26_6(x * 64), fixed.Int26_6(y * 64)}
 
 	d := &font.Drawer{
